@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2017 Dekalo Stanislav. All rights reserved.
+ */
 package ua.com.dekalo.assertions;
 
 import android.os.Handler;
@@ -13,9 +16,19 @@ import android.text.TextUtils;
  */
 public class Assertions {
 
+    private static final CrashReporter EMPTY_REPORTER = new CrashReporter() {
+        @Override
+        public void report(Throwable throwable) {
+        }
+    };
+
     private static boolean CRASH_ON_FAIL = false;
     private static Handler UI_HANDLER;
-    private static AssertionLogger ASSERTION_LOGGER;
+    private static CrashReporter CRASH_REPORTER = EMPTY_REPORTER;
+
+    public interface CrashReporter {
+        void report(Throwable throwable);
+    }
 
     public static void initializeUIHandler() {
         UI_HANDLER = new Handler();
@@ -29,13 +42,15 @@ public class Assertions {
         CRASH_ON_FAIL = enabled;
     }
 
-    public static void setAssertionLogger(AssertionLogger assertionLogger) {
-        ASSERTION_LOGGER = assertionLogger;
+    public static void setCrashReporter(CrashReporter crashReporter) {
+        CRASH_REPORTER = crashReporter == null ? EMPTY_REPORTER : crashReporter;
     }
 
     public static void fail(final Throwable e) {
-        if (ASSERTION_LOGGER != null) ASSERTION_LOGGER.log(e);
-        if (CRASH_ON_FAIL) performOnUIThreadIfPossible(new ThrowDelegateRunnable(e));
+        CRASH_REPORTER.report(e);
+        if (CRASH_ON_FAIL) {
+            performOnUIThreadIfPossible(new ThrowDelegateRunnable(e));
+        }
     }
 
     public static void fail(final Func0<Throwable> descriptionGenerator) {
@@ -128,5 +143,9 @@ public class Assertions {
         public void run() {
             throw runtimeException;
         }
+    }
+
+    public static void unreachable() {
+        fail(new UnsupportedOperationException("Unreachable source code."));
     }
 }

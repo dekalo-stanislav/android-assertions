@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 Dekalo Stanislav. All rights reserved.
+ */
+
 package ua.com.dekalo.assertions;
 
 /**
