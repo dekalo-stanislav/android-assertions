@@ -1,5 +1,5 @@
 package ua.com.dekalo.assertions
 
-interface ExceptionFactory {
+interface ThrowableFactory {
     fun create(): Throwable
 }

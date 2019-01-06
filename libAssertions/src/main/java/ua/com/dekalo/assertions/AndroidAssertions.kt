@@ -4,8 +4,16 @@ import android.os.Handler
 import android.os.Looper
 
 object AndroidAssertions {
-    @JvmOverloads
-    fun init(assertionHandler: AssertionHandler = EmptyAssertionHandler, crashOnFail: Boolean = false) {
+
+    fun init(assertionHandler: AssertionHandler = EmptyAssertionHandler) {
+        init(assertionHandler, false)
+    }
+
+    fun init(crashOnFail: Boolean) {
+        init(EmptyAssertionHandler, crashOnFail)
+    }
+
+    fun init(assertionHandler: AssertionHandler = EmptyAssertionHandler, crashOnFail: Boolean) {
 
         Assertions.addAssertionHandler(assertionHandler)
 
@@ -16,20 +24,20 @@ object AndroidAssertions {
 }
 
 /**
- * Ensures that method called on UI thread, else raises exception provided by ExceptionFactory.
+ * Ensures that method called on UI thread, else raises exception provided by ThrowableFactory.
  */
-fun Assertions.checkUIThread(exceptionFactory: ExceptionFactory) {
+fun Assertions.checkUIThread(throwableFactory: ThrowableFactory) {
     if (Looper.getMainLooper() != Looper.myLooper()) {
-        Assertions.fail(exceptionFactory)
+        Assertions.fail(throwableFactory)
     }
 }
 
 /**
- * Ensures that method called on UI thread, else raises exception provided by ExceptionFactory.
+ * Ensures that method called on UI thread, else raises exception provided by ThrowableFactory.
  */
-fun Assertions.checkNotUIThread(exceptionFactory: ExceptionFactory) {
+fun Assertions.checkNotUIThread(throwableFactory: ThrowableFactory) {
     if (Looper.getMainLooper() == Looper.myLooper()) {
-        Assertions.fail(exceptionFactory)
+        Assertions.fail(throwableFactory)
     }
 }
 

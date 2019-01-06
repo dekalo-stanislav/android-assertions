@@ -18,10 +18,3 @@ object EmptyAssertionHandler : AssertionHandler {
         // do nothing
     }
 }
-
-class CompositeAssertionHandler(val assertionHandlers: Array<AssertionHandler>) : AssertionHandler {
-
-    override fun report(throwable: Throwable, silently: Boolean) {
-        assertionHandlers.forEach { it.report(throwable) }
-    }
-}

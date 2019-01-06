@@ -18,86 +18,99 @@ object Assertions {
 
     private const val DEFAULT_PRIOTIY = 0;
 
-    private val handlers = TreeSet<Pair<Int, AssertionHandler>>()
+    private val handlers = TreeSet<PriorityHandler>()
 
     /**
      * Add AssertionHandler to handler list.
      */
-    @JvmOverloads
+    fun addAssertionHandler(assertionHandler: AssertionHandler) {
+        handlers.add(PriorityHandler(assertionHandler))
+    }
+
+    /**
+     * Add AssertionHandler to handler list, with DEFAULT_PRIORITY = 0.
+     */
     fun addAssertionHandler(assertionHandler: AssertionHandler, priority: Int = DEFAULT_PRIOTIY) {
-        handlers.add(Pair(priority, assertionHandler))
+        handlers.add(PriorityHandler(assertionHandler, priority))
     }
 
     /**
      * Remove AssertionHandler from handlers list.
      */
     fun removeAssertionHandler(assertionHandler: AssertionHandler) {
-        while (handlers.remove(handlers.find { it.second == assertionHandler })) {
-            // all logic already in while statement
-        }
+        Utils.filter(handlers) { it.handler == assertionHandler }
     }
 
-    private fun hasHandlers(): Boolean = handlers.isNotEmpty()
+    private fun hasHandlers(): Boolean = !handlers.isEmpty()
+
+    /**
+     * Assertion failed with throwable.
+     */
+    fun fail(throwable: Throwable) {
+        if (hasHandlers()) {
+            handlers.forEach { it.handler.report(throwable, false) }
+        }
+    }
 
     /**
      * Assertion failed with throwable.
      *
      * @param silently will be passed to AssertionHandler, crash will not happen in any case if it is silent assertion. It is reasonable if it is possible but undesired situation that you would like to log in your crash reporting tool.
      */
-    @JvmOverloads
     fun fail(throwable: Throwable, silently: Boolean = false) {
         if (hasHandlers()) {
-            handlers.forEach { it.second.report(throwable, silently) }
+            handlers.forEach { it.handler.report(throwable, silently) }
         }
     }
 
-    internal fun fail(exceptionFactory: ExceptionFactory) {
+    internal fun fail(throwableFactory: ThrowableFactory) {
         if (hasHandlers()) {
-            exceptionFactory.create().let { throwable ->
-                handlers.forEach { it.second.report(throwable, false) }
-            }
+            val throwable = throwableFactory.create();
+            handlers.forEach { it.handler.report(throwable, false) }
         }
     }
 
     /**
-     * Checks that shouldBeTrue condition is true, else raises exception provided by ExceptionFactory.
+     * Checks that shouldBeTrue condition is true, else raises exception provided by ThrowableFactory.
      */
-    fun assertTrue(shouldBeTrue: Boolean, exceptionFactory: ExceptionFactory) {
+    fun assertTrue(shouldBeTrue: Boolean, throwableFactory: ThrowableFactory) {
         if (!shouldBeTrue) {
-            fail(exceptionFactory)
+            fail(throwableFactory)
         }
     }
 
     /**
-     * Checks that shouldBeFalse condition is false, else raises exception provided by ExceptionFactory.
+     * Checks that shouldBeFalse condition is false, else raises exception provided by ThrowableFactory.
      */
-    fun assertFalse(shouldBeFalse: Boolean, exceptionFactory: ExceptionFactory) {
+    fun assertFalse(shouldBeFalse: Boolean, throwableFactory: ThrowableFactory) {
         if (shouldBeFalse) {
-            fail(exceptionFactory)
+            fail(throwableFactory)
         }
     }
 
-    fun assertNull(shouldBeNull: Any?, exceptionFactory: ExceptionFactory) {
+    fun assertNull(shouldBeNull: Any?, throwableFactory: ThrowableFactory) {
         if (shouldBeNull != null) {
-            fail(exceptionFactory)
+            fail(throwableFactory)
         }
     }
 
-    fun assertNotNull(shouldNotBeNull: Any?, exceptionFactory: ExceptionFactory) {
+    fun assertNotNull(shouldNotBeNull: Any?, throwableFactory: ThrowableFactory) {
         if (shouldNotBeNull == null) {
-            fail(exceptionFactory)
+            fail(throwableFactory)
         }
     }
 
-    fun <T> assertEmpty(shouldBeEmpty: Collection<T>, exceptionFactory: ExceptionFactory) {
-        if (shouldBeEmpty.isNotEmpty()) {
-            fail(exceptionFactory)
+    fun <T> assertEmpty(shouldBeEmpty: Collection<T>, throwableFactory: ThrowableFactory) {
+        if (!shouldBeEmpty.isEmpty()) {
+            fail(throwableFactory)
         }
     }
 
-    fun <T> assertNotEmpty(shouldNotBeEmpty: Collection<T>, exceptionFactory: ExceptionFactory) {
+    fun <T> assertNotEmpty(shouldNotBeEmpty: Collection<T>, throwableFactory: ThrowableFactory) {
         if (shouldNotBeEmpty.isEmpty()) {
-            fail(exceptionFactory)
+            fail(throwableFactory)
         }
     }
+
+    private data class PriorityHandler(val handler: AssertionHandler, val priority: Int = DEFAULT_PRIOTIY)
 }
