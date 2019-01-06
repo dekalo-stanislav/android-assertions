@@ -1,1 +1,1 @@
-include ':libAssertions'
+include ':libAndroidAssertions'
