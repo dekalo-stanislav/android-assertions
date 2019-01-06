@@ -20,6 +20,7 @@ android {
 }
 
 dependencies {
+    api project(':libAssertions')
     testImplementation 'junit:junit:4.12'
 }
 repositories {

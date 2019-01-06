@@ -57,13 +57,16 @@ object Assertions {
      *
      * @param silently will be passed to AssertionHandler, crash will not happen in any case if it is silent assertion. It is reasonable if it is possible but undesired situation that you would like to log in your crash reporting tool.
      */
-    fun fail(throwable: Throwable, silently: Boolean = false) {
+    fun failSilently(throwable: Throwable) {
         if (hasHandlers()) {
-            handlers.forEach { it.handler.report(throwable, silently) }
+            handlers.forEach { it.handler.report(throwable, true) }
         }
     }
 
-    internal fun fail(throwableFactory: ThrowableFactory) {
+    /**
+     * Assertion failed with throwable factory.
+     */
+    fun fail(throwableFactory: ThrowableFactory) {
         if (hasHandlers()) {
             val throwable = throwableFactory.create();
             handlers.forEach { it.handler.report(throwable, false) }
@@ -112,5 +115,7 @@ object Assertions {
         }
     }
 
-    private data class PriorityHandler(val handler: AssertionHandler, val priority: Int = DEFAULT_PRIOTIY)
+    private data class PriorityHandler(val handler: AssertionHandler, val priority: Int = DEFAULT_PRIOTIY) : Comparable<PriorityHandler> {
+        override fun compareTo(other: PriorityHandler) = other.priority - priority
+    }
 }

@@ -5,21 +5,43 @@ import android.os.Looper
 
 object AndroidAssertions {
 
-    fun init(assertionHandler: AssertionHandler = EmptyAssertionHandler) {
-        init(assertionHandler, false)
-    }
-
-    fun init(crashOnFail: Boolean) {
-        init(EmptyAssertionHandler, crashOnFail)
-    }
-
-    fun init(assertionHandler: AssertionHandler = EmptyAssertionHandler, crashOnFail: Boolean) {
-
-        Assertions.addAssertionHandler(assertionHandler)
-
-        if (crashOnFail) {
+    /**
+     * Application would crash if assertion happens (if it is not silent assertion).
+     */
+    fun shouldCrashOnAssertion(crashOnAssertions: Boolean) {
+        if (crashOnAssertions) {
             Assertions.addAssertionHandler(AndroidAssertionHandler, Int.MIN_VALUE)
+        } else {
+            Assertions.removeAssertionHandler(AndroidAssertionHandler)
         }
+    }
+
+    /**
+     * Add Assertion handler.
+     */
+    fun addAssertionHandler(assertionHandler: AssertionHandler) {
+        Assertions.addAssertionHandler(assertionHandler)
+    }
+
+    /**
+     * Add Assertion handler.
+     */
+    fun addAssertionHandler(assertionHandler: (Throwable, Boolean) -> Unit) {
+        Assertions.addAssertionHandler(AssertionHandlerWrapper(assertionHandler))
+    }
+
+    /**
+     * Remove assertion handler.
+     */
+    fun removeAssertionHandler(assertionHandler: AssertionHandler) {
+        Assertions.removeAssertionHandler(assertionHandler)
+    }
+
+    /**
+     * Remove assertion handler.
+     */
+    fun removeAssertionHandler(assertionHandler: (Throwable, Boolean) -> Unit) {
+        Assertions.removeAssertionHandler(AssertionHandlerWrapper(assertionHandler))
     }
 }
 
@@ -38,6 +60,12 @@ fun Assertions.checkUIThread(throwableFactory: ThrowableFactory) {
 fun Assertions.checkNotUIThread(throwableFactory: ThrowableFactory) {
     if (Looper.getMainLooper() == Looper.myLooper()) {
         Assertions.fail(throwableFactory)
+    }
+}
+
+data class AssertionHandlerWrapper(val assertionHandler: (Throwable, Boolean) -> Unit) : AssertionHandler {
+    override fun report(throwable: Throwable, silently: Boolean) {
+        assertionHandler.invoke(throwable, silently)
     }
 }
 
