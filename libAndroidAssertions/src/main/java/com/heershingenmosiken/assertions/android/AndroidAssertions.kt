@@ -1,7 +1,10 @@
-package ua.com.dekalo.assertions
+package com.heershingenmosiken.assertions.android
 
 import android.os.Handler
 import android.os.Looper
+import com.heershingenmosiken.assertions.AssertionHandler
+import com.heershingenmosiken.assertions.Assertions
+import com.heershingenmosiken.assertions.ThrowableFactory
 
 object AndroidAssertions {
 

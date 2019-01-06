@@ -1,8 +1,8 @@
-package ua.com.dekalo.android.appassertionssample
+package com.heershingenmosiken.android.assertions.appsample
 
 import android.app.Application
 import android.util.Log
-import ua.com.dekalo.assertions.AndroidAssertions
+import com.heershingenmosiken.assertions.android.AndroidAssertions
 
 class SampleAppliction : Application() {
     override fun onCreate() {

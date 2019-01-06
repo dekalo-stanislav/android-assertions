@@ -1,11 +1,11 @@
-package ua.com.dekalo.android.appassertionssample
+package com.heershingenmosiken.android.assertions.appsample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_sample.*
-import ua.com.dekalo.assertions.Assertions
+import com.heershingenmosiken.assertions.Assertions
 
 class SampleActivity : AppCompatActivity() {
 
@@ -14,7 +14,7 @@ class SampleActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sample)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener {
             Assertions.fail(IllegalStateException("Assertion occurred"))
         }
     }

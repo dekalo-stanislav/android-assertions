@@ -1,4 +1,4 @@
-package ua.com.dekalo.assertions
+package com.heershingenmosiken.assertions
 
 interface ThrowableFactory {
     fun create(): Throwable
